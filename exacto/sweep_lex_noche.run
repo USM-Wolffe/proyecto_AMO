@@ -1,0 +1,83 @@
+# =============================================================================
+#   sweep_lex_noche.run   -   barrido lexicografico ENFOCADO (nocturno)
+#   Para instancias donde g_c es trivialmente 0 (dormitorio, dificil): minimiza
+#   (g_f + 0.01 g_c) con g_r como cota (cota_gr), barriendo eps_gr FINO en la zona
+#   angosta [gr_min, rodilla]. Tope GRANDE por celda (15 min) y REGISTRA EL
+#   INCUMBENTE aunque la celda no certifique (columna cert = si/no).
+#   Usa el param inst_name (lo fija el master) para nombrar el CSV.
+#   Requiere model interior.mod + data ya cargados.
+# =============================================================================
+
+option solver cbc;
+option solver_msg 0;
+option cbc_options 'seconds=900';          # 15 min por celda
+
+param gr_min  default 0;
+param gr_knee default 0;
+param grv     default 0;
+param Nl default 0;  param Dl default 0;  param Fl default 1e9;
+
+objective obj_dink;  objective obj_gfc;
+drop obj_dink;  drop obj_gfc;
+drop cota_gc; drop cota_gr; drop cota_gf;  drop aug_gr; drop aug_gf;
+
+printf "\n######## %s : barrido lexicografico nocturno ########\n", inst_name;
+
+# ---- piso: gr_min = min g_r (Dinkelbach) ----
+let lambda_dink := 0;  restore obj_dink;
+repeat {
+    solve;
+    let Nl := (alpha_gr/Dman)*sum {i in MUEBLES} dist_eff[i]
+              + (1-alpha_gr)*sum {i in MUEBLES} wmet[i];
+    let Dl := sum {i in MUEBLES} z[i];
+    let Fl := Nl - lambda_dink * Dl;
+    if Fl <= 1e-6 then break;
+    let lambda_dink := Nl / Dl;
+}
+let gr_min := 1 - Nl/Dl;
+
+# ---- rodilla: min g_r con perfil completo (g_f = 0) ----
+let eps_gf := 0;  restore cota_gf;
+let lambda_dink := 0;
+repeat {
+    solve;
+    let Nl := (alpha_gr/Dman)*sum {i in MUEBLES} dist_eff[i]
+              + (1-alpha_gr)*sum {i in MUEBLES} wmet[i];
+    let Dl := sum {i in MUEBLES} z[i];
+    let Fl := Nl - lambda_dink * Dl;
+    if Fl <= 1e-6 then break;
+    let lambda_dink := Nl / Dl;
+}
+let gr_knee := 1 - Nl/Dl;
+drop cota_gf;  drop obj_dink;
+printf "  gr_min=%.4f  gr_rodilla=%.4f\n", gr_min, gr_knee;
+
+# ---- barrido fino ----
+param NSTEPS := 11;
+if gr_knee <= gr_min then let gr_knee := gr_min + 0.05;
+param paso := (gr_knee - gr_min) / NSTEPS;
+
+restore obj_gfc;
+restore cota_gr;
+
+param out symbolic := "pareto_" & inst_name & "_noche.csv";
+print "instancia,k,eps_gr,gc,gr,gf,status,cert" > (out);
+
+for {k in 0..NSTEPS} {
+    let eps_gr := gr_min + k * paso;
+    solve;
+    if solve_result = "solved" or solve_result = "limit" then {
+        let grv := 1 - ((alpha_gr/Dman)*sum {i in MUEBLES} dist_eff[i]
+                   + (1-alpha_gr)*sum {i in MUEBLES} wmet[i]) / sum {i in MUEBLES} z[i];
+        printf "%s,%d,%.4f,%.6f,%.6f,%.6f,%s,%s\n",
+            inst_name, k, eps_gr, gc, grv, gf, solve_result,
+            (if solve_result = "solved" then "si" else "no") >> (out);
+        printf "  k=%d eps_gr=%.4f -> gc=%.4f gr=%.4f gf=%.4f [%s]\n",
+            k, eps_gr, gc, grv, gf, solve_result;
+    } else {
+        printf "%s,%d,%.4f,,,,%s,no\n", inst_name, k, eps_gr, solve_result >> (out);
+        printf "  k=%d eps_gr=%.4f -> %s\n", k, eps_gr, solve_result;
+    }
+}
+close (out);
+printf "######## %s LISTO -> %s ########\n", inst_name, out;

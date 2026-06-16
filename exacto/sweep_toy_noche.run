@@ -1,0 +1,88 @@
+# =============================================================================
+#   sweep_toy_noche.run   -   barrido 3-OBJETIVO AUGMECON (nocturno)
+#   Para toy g_c SI varia (no es trivial), asi que se usa el barrido 3-objetivo
+#   propio: minimiza g_c con g_r y g_f como cotas AUMENTADAS (aug_gr, aug_gf) y el
+#   objetivo obj_aug = g_c - delta*(holguras). toy es chico => rapido y certificado.
+#   Registra el incumbente aunque no certifique (cert = si/no). Usa inst_name.
+#   Requiere model interior.mod + data toy.dat ya cargados.
+# =============================================================================
+
+option solver cbc;
+option solver_msg 0;
+option cbc_options 'seconds=120';
+
+param gc_min default 0;  param gf_min default 0;  param gr_min default 0;
+param gr_hi  default 0;  param gf_hi  default 0;  param grv default 0;
+param Nl default 0;  param Dl default 0;  param Fl default 1e9;
+
+objective obj_gc;  objective obj_gf;  objective obj_dink;  objective obj_aug;
+drop obj_gc;  drop obj_gf;  drop obj_dink;  drop obj_aug;
+drop cota_gc; drop cota_gr; drop cota_gf;  drop aug_gr; drop aug_gf;
+
+printf "\n######## %s : barrido 3-objetivo AUGMECON nocturno ########\n", inst_name;
+
+# --- extremos ---
+restore obj_gc;  solve;  drop obj_gc;
+let gc_min := gc;
+let grv := 1 - ((alpha_gr/Dman)*sum {i in MUEBLES} dist_eff[i]
+           + (1-alpha_gr)*sum {i in MUEBLES} wmet[i]) / sum {i in MUEBLES} z[i];
+let gr_hi := grv;  let gf_hi := gf;
+printf "  min gc=%.4f (gr=%.4f gf=%.4f)\n", gc_min, grv, gf;
+
+restore obj_gf;  solve;  drop obj_gf;
+let gf_min := gf;
+let grv := 1 - ((alpha_gr/Dman)*sum {i in MUEBLES} dist_eff[i]
+           + (1-alpha_gr)*sum {i in MUEBLES} wmet[i]) / sum {i in MUEBLES} z[i];
+if grv > gr_hi then let gr_hi := grv;
+printf "  min gf=%.4f (gr=%.4f gc=%.4f)\n", gf_min, grv, gc;
+
+let lambda_dink := 0;  restore obj_dink;
+repeat {
+    solve;
+    let Nl := (alpha_gr/Dman)*sum {i in MUEBLES} dist_eff[i]
+              + (1-alpha_gr)*sum {i in MUEBLES} wmet[i];
+    let Dl := sum {i in MUEBLES} z[i];
+    let Fl := Nl - lambda_dink * Dl;
+    if Fl <= 1e-6 then break;
+    let lambda_dink := Nl / Dl;
+}
+drop obj_dink;
+let gr_min := 1 - Nl/Dl;
+if gf > gf_hi then let gf_hi := gf;
+printf "  min gr=%.4f\n", gr_min;
+
+# --- grilla 2D ---
+param NSTEPS := 4;
+if gr_hi <= gr_min then let gr_hi := gr_min + 0.05;
+if gf_hi <= gf_min then let gf_hi := gf_min + 0.05;
+let rng_gr := gr_hi - gr_min;
+let rng_gf := gf_hi - gf_min;
+param paso_gr := (gr_hi - gr_min) / NSTEPS;
+param paso_gf := (gf_hi - gf_min) / NSTEPS;
+
+restore obj_aug;  restore aug_gr;  restore aug_gf;
+
+param out symbolic := "pareto_" & inst_name & "_noche.csv";
+print "instancia,k_gr,k_gf,gc,gr,gf,status,cert" > (out);
+
+for {kr in 0..NSTEPS} {
+    for {kf in 0..NSTEPS} {
+        let eps_gr := gr_min + kr * paso_gr;
+        let eps_gf := gf_min + kf * paso_gf;
+        solve;
+        if solve_result = "solved" or solve_result = "limit" then {
+            let grv := 1 - ((alpha_gr/Dman)*sum {i in MUEBLES} dist_eff[i]
+                       + (1-alpha_gr)*sum {i in MUEBLES} wmet[i]) / sum {i in MUEBLES} z[i];
+            printf "%s,%d,%d,%.6f,%.6f,%.6f,%s,%s\n",
+                inst_name, kr, kf, gc, grv, gf, solve_result,
+                (if solve_result = "solved" then "si" else "no") >> (out);
+            printf "  kr=%d kf=%d -> gc=%.4f gr=%.4f gf=%.4f [%s]\n",
+                kr, kf, gc, grv, gf, solve_result;
+        } else {
+            printf "%s,%d,%d,,,,%s,no\n", inst_name, kr, kf, solve_result >> (out);
+            printf "  kr=%d kf=%d -> %s\n", kr, kf, solve_result;
+        }
+    }
+}
+close (out);
+printf "######## %s LISTO -> %s ########\n", inst_name, out;

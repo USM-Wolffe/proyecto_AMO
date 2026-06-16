@@ -1,0 +1,19 @@
+# ============================================================================
+#  MILP exacto sobre el dataset comun (AMPL/CBC). OPCIONAL.
+#  Requisitos en la carpeta de AMPL (C:\Users\Sebastian\AMPL\proyecto):
+#    interior.mod, sweep_lex_noche.run, y los p*.dat del dataset.
+#  Ejecutar:  cd C:\Users\Sebastian\AMPL\proyecto;  include overnight_milp_dataset.run;
+#  Reusa el barrido validado sweep_lex_noche.run. Topes de tiempo + incumbentes.
+#  Las grandes (p16/p20/p26) probablemente no terminen: eso ES el resultado
+#  (el exacto no escala). Cada instancia escribe pareto_<inst>_noche.csv.
+# ============================================================================
+reset; model interior.mod; data p04.dat; let inst_name := "p04"; include sweep_lex_noche.run;
+reset; model interior.mod; data p05.dat; let inst_name := "p05"; include sweep_lex_noche.run;
+reset; model interior.mod; data p06.dat; let inst_name := "p06"; include sweep_lex_noche.run;
+reset; model interior.mod; data p08.dat; let inst_name := "p08"; include sweep_lex_noche.run;
+reset; model interior.mod; data p10.dat; let inst_name := "p10"; include sweep_lex_noche.run;
+reset; model interior.mod; data p12.dat; let inst_name := "p12"; include sweep_lex_noche.run;
+reset; model interior.mod; data p16.dat; let inst_name := "p16"; include sweep_lex_noche.run;
+reset; model interior.mod; data p20.dat; let inst_name := "p20"; include sweep_lex_noche.run;
+reset; model interior.mod; data p26.dat; let inst_name := "p26"; include sweep_lex_noche.run;
+print "==== TODO EL MILP DEL DATASET LISTO ====";

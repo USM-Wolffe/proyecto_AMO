@@ -1,0 +1,32 @@
+# instancia p12 (generada)
+param Wroom := 520;
+param Hroom := 460;
+param Px := 90;
+param Py := 0;
+
+set MUEBLES := m1 m2 m3 m4 m5 m6 m7 m8 m9 m10 m11 m12;
+set CATEGORIAS := archivador escritorio estanteria mesa_reunion silla_of sofa;
+
+param: ancho largo clear cat :=
+    m1 50 50 30 silla_of
+    m2 200 100 60 mesa_reunion
+    m3 50 60 30 archivador
+    m4 140 70 50 escritorio
+    m5 50 50 30 silla_of
+    m6 210 90 40 sofa
+    m7 140 70 50 escritorio
+    m8 50 60 30 archivador
+    m9 50 50 30 silla_of
+    m10 140 70 50 escritorio
+    m11 90 40 40 estanteria
+    m12 90 40 40 estanteria
+;
+
+param: desea peso :=
+    archivador 3 0.9
+    escritorio 2 0.8
+    estanteria 4 0.6
+    mesa_reunion 1 0.5
+    silla_of 3 0.8
+    sofa 1 0.3
+;

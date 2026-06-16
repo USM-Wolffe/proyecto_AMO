@@ -1,0 +1,55 @@
+# instancia p26 (generada)
+param Wroom := 780;
+param Hroom := 640;
+param Px := 250;
+param Py := 0;
+
+set MUEBLES := m1 m2 m3 m4 m5 m6 m7 m8 m9 m10 m11 m12 m13 m14 m15 m16 m17 m18 m19 m20 m21 m22 m23 m24 m25 m26;
+set CATEGORIAS := cama closet comoda escritorio estanteria lampara librero mesa_centro mesa_comedor mesa_reunion silla_com silla_of sillon sofa velador;
+
+param: ancho largo clear cat :=
+    m1 110 40 30 librero
+    m2 45 45 30 silla_com
+    m3 140 200 30 cama
+    m4 45 45 30 silla_com
+    m5 100 50 30 comoda
+    m6 140 70 50 escritorio
+    m7 100 50 30 comoda
+    m8 210 90 40 sofa
+    m9 45 40 10 velador
+    m10 45 45 30 silla_com
+    m11 140 70 50 escritorio
+    m12 140 70 50 escritorio
+    m13 88 88 30 sillon
+    m14 50 50 30 silla_of
+    m15 50 50 30 silla_of
+    m16 140 70 50 escritorio
+    m17 120 70 30 mesa_centro
+    m18 45 45 30 silla_com
+    m19 200 100 60 mesa_reunion
+    m20 110 40 30 librero
+    m21 90 40 40 estanteria
+    m22 90 40 40 estanteria
+    m23 40 40 20 lampara
+    m24 40 40 20 lampara
+    m25 180 60 60 closet
+    m26 150 95 55 mesa_comedor
+;
+
+param: desea peso :=
+    cama 1 0.6
+    closet 2 0.4
+    comoda 3 0.6
+    escritorio 4 1.0
+    estanteria 1 0.9
+    lampara 1 0.4
+    librero 1 0.6
+    mesa_centro 1 0.9
+    mesa_comedor 1 0.6
+    mesa_reunion 1 0.4
+    silla_com 6 0.7
+    silla_of 2 0.3
+    sillon 1 0.3
+    sofa 1 0.8
+    velador 1 0.7
+;

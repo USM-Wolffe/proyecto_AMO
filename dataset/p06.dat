@@ -1,0 +1,25 @@
+# instancia p06 (generada)
+param Wroom := 340;
+param Hroom := 280;
+param Px := 280;
+param Py := 0;
+
+set MUEBLES := m1 m2 m3 m4 m5 m6;
+set CATEGORIAS := lampara librero mesa_centro sillon tv_mueble;
+
+param: ancho largo clear cat :=
+    m1 88 88 30 sillon
+    m2 40 40 20 lampara
+    m3 120 70 30 mesa_centro
+    m4 110 40 30 librero
+    m5 190 45 55 tv_mueble
+    m6 88 88 30 sillon
+;
+
+param: desea peso :=
+    lampara 1 0.5
+    librero 1 0.8
+    mesa_centro 1 0.4
+    sillon 2 0.5
+    tv_mueble 3 0.5
+;

@@ -1,0 +1,10 @@
+nombre,muebles,categorias,W,H,Px,Py,clase
+p04,4,3,220,200,100,0,pequena
+p05,5,3,280,240,60,0,pequena
+p06,6,5,340,280,280,0,pequena
+p08,8,6,400,350,200,0,mediana
+p10,10,7,480,400,120,0,mediana
+p12,12,6,520,460,90,0,mediana
+p16,16,10,620,500,150,0,grande
+p20,20,13,680,560,200,0,grande
+p26,26,15,780,640,250,0,grande

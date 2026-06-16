@@ -1,0 +1,55 @@
+# =============================================================================
+#   dinkelbach_gr.run
+#   Calcula el EXTREMO de circulacion con la NUEVA definicion de g_r:
+#       g_r = 1 - (distancia PROMEDIO de muebles seleccionados a la puerta)/Drmax
+#   minimizar g_r  <=>  maximizar  (sum dist_eff) / (sum z)
+#   que es un cociente (lineal-fraccional). Se resuelve por Dinkelbach.
+#
+#   Ejecutar tras:   reset; model interior.mod; data <instancia>.dat;
+#   p.ej.            reset; model interior.mod; data dormitorio.dat;
+#                    include dinkelbach_gr.run;
+# =============================================================================
+
+option solver cbc;
+option solver_msg 0;
+option cbc_options 'seconds=120';
+
+# Dejar activo SOLO el objetivo parametrico de Dinkelbach
+objective obj_gc;  objective obj_gf;  objective obj_dink;
+drop obj_gc;  drop obj_gf;
+drop cota_gc; drop cota_gr; drop cota_gf;     # sin cotas epsilon para el extremo
+restore obj_dink;
+
+param tol   := 1e-6;          # tolerancia de convergencia para F
+param Nval  default 0;        # N(x) = sum dist_eff   (numerador)
+param Dval  default 0;        # D(x) = sum z          (denominador, >= 2)
+param Fval  default 1e9;      # F = N - lambda*D
+param it    default 0;
+
+let lambda_dink := 0;         # arranque
+
+# Numerador combinado de g_r: N = (alpha/Dman)*sum dist_eff + (1-alpha)*sum wmet
+# (lejania a la puerta + pegado a pared, ambos por seleccionar). gr = 1 - N/sum z.
+print "==== Dinkelbach: maximizar score de circulacion (lejania + pared) ====";
+repeat {
+    let it := it + 1;
+    solve;
+    let Nval := (alpha_gr/Dman) * sum {i in MUEBLES} dist_eff[i]
+                + (1 - alpha_gr) * sum {i in MUEBLES} wmet[i];
+    let Dval := sum {i in MUEBLES} z[i];
+    let Fval := Nval - lambda_dink * Dval;
+    printf "  it %d:  lambda=%.6f  N=%.4f  D=%.0f  F=%.6f  score=%.4f\n",
+        it, lambda_dink, Nval, Dval, Fval, Nval/Dval;
+    if Fval <= tol then break;     # F llega a 0 por arriba: lambda actual es optimo
+    let lambda_dink := Nval / Dval;
+}
+
+param gr_ext := 1 - Nval/Dval;
+printf "\n  Extremo de circulacion (alpha = %.2f):\n", alpha_gr;
+printf "    score de circulacion max = %.4f\n", Nval/Dval;
+printf "    g_r minimo (nueva def.)  = %.6f\n", gr_ext;
+printf "    distancia promedio a puerta = %.2f (Dman = %.2f)\n",
+    (sum {i in MUEBLES} dist_eff[i]) / Dval, Dman;
+printf "    muebles pegados a pared = %.0f de %.0f seleccionados\n",
+    sum {i in MUEBLES} wmet[i], Dval;
+print  "==== Fin Dinkelbach ====";

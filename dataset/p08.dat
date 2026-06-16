@@ -1,0 +1,28 @@
+# instancia p08 (generada)
+param Wroom := 400;
+param Hroom := 350;
+param Px := 200;
+param Py := 0;
+
+set MUEBLES := m1 m2 m3 m4 m5 m6 m7 m8;
+set CATEGORIAS := cama closet comoda escritorio silla_of velador;
+
+param: ancho largo clear cat :=
+    m1 140 70 50 escritorio
+    m2 100 50 30 comoda
+    m3 180 60 60 closet
+    m4 50 50 30 silla_of
+    m5 45 40 10 velador
+    m6 45 40 10 velador
+    m7 140 200 30 cama
+    m8 140 70 50 escritorio
+;
+
+param: desea peso :=
+    cama 1 0.9
+    closet 1 0.3
+    comoda 1 0.9
+    escritorio 2 0.3
+    silla_of 1 0.6
+    velador 2 1.0
+;

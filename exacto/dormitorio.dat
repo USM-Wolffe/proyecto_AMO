@@ -1,0 +1,40 @@
+# =============================================================================
+#   dormitorio.dat
+#   Instancia "media" para AMO E2 - port del archivo dormitorio.txt usado en CC.
+#   Recinto 400x350 cm, 6 muebles en catalogo, perfil de dormitorio.
+# =============================================================================
+
+# ---------------- Recinto ----------------------------------------------------
+param Wroom := 400;
+param Hroom := 350;
+
+# Puerta: segmento entre (180,0) y (260,0). Punto medio (220,0).
+param Px := 220;
+param Py := 0;
+
+# ---------------- Catalogo ---------------------------------------------------
+set MUEBLES := cama mesa_noche1 mesa_noche2 closet escritorio silla comoda;
+
+set CATEGORIAS := cama mesa_noche closet escritorio silla comoda;
+
+param: ancho largo clear cat :=
+    cama          140  200  30  cama
+    mesa_noche1    45   40  10  mesa_noche
+    mesa_noche2    45   40  10  mesa_noche
+    closet        180   60  60  closet
+    escritorio    120   60  50  escritorio
+    silla          45   45  30  silla
+    comoda        100   50  30  comoda
+;
+
+# ---------------- Perfil del recinto -----------------------------------------
+# (cantidad deseada por categoria, importancia en [0,1])
+
+param: desea peso :=
+    cama         1   1.0
+    mesa_noche   2   0.7
+    closet       1   0.9
+    escritorio   1   0.5
+    silla        1   0.4
+    comoda       1   0.5
+;

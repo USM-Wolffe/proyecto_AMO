@@ -1,0 +1,30 @@
+# =============================================================================
+#   overnight.run   -   corrida nocturna completa (toy + dormitorio + dificil)
+#   Cada bloque hace su propio reset/model/data, fija inst_name e incluye el
+#   barrido apropiado. Orden toy -> dormitorio -> dificil (si dificil se alarga,
+#   las otras ya quedaron guardadas; cada barrido escribe su CSV celda a celda).
+#   alpha_gr = 0.5 (default del modelo).
+#
+#   Ejecutar tras:
+#     cd C:\Users\Sebastian\AMPL\proyecto;
+#     include overnight.run;
+#   IMPORTANTE: configurar el PC para que NO se suspenda durante la noche.
+# =============================================================================
+
+reset; model interior.mod; data toy.dat;
+let inst_name := "toy";
+include sweep_toy_noche.run;
+
+reset; model interior.mod; data dormitorio.dat;
+let inst_name := "dormitorio";
+include sweep_lex_noche.run;
+
+reset; model interior.mod; data dificil.dat;
+let inst_name := "dificil";
+include sweep_lex_noche.run;
+
+print "";
+print "=================================================================";
+print " TODO LISTO. CSV: pareto_toy_noche.csv, pareto_dormitorio_noche.csv,";
+print "                  pareto_dificil_noche.csv";
+print "=================================================================";

@@ -1,0 +1,21 @@
+# instancia p04 (generada)
+param Wroom := 220;
+param Hroom := 200;
+param Px := 100;
+param Py := 0;
+
+set MUEBLES := m1 m2 m3 m4;
+set CATEGORIAS := comoda silla_of velador;
+
+param: ancho largo clear cat :=
+    m1 50 50 30 silla_of
+    m2 100 50 30 comoda
+    m3 45 40 10 velador
+    m4 45 40 10 velador
+;
+
+param: desea peso :=
+    comoda 3 0.5
+    silla_of 1 0.7
+    velador 2 0.5
+;

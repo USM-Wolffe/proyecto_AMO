@@ -1,0 +1,30 @@
+# =============================================================================
+#   toy.dat
+#   Instancia "juguete" para AMO E2: recinto chico, catalogo de 4 muebles.
+#   Pensada para describir vecinos del frente de Pareto manualmente.
+#
+#   Recinto 200x200 cm, puerta centrada en la pared inferior.
+# =============================================================================
+
+param Wroom := 200;
+param Hroom := 200;
+
+param Px := 100;
+param Py := 0;
+
+set MUEBLES := cama mesa silla closet;
+set CATEGORIAS := cama mesa silla closet;
+
+param: ancho largo clear cat :=
+    cama       90  180  20  cama
+    mesa       60   60  20  mesa
+    silla      40   40  15  silla
+    closet     80   40  30  closet
+;
+
+param: desea peso :=
+    cama       1  1.0
+    mesa       1  0.5
+    silla      1  0.4
+    closet     1  0.8
+;

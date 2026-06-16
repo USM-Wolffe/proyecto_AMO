@@ -1,0 +1,45 @@
+# =============================================================================
+#   dificil.dat
+#   Instancia "dificil" para AMO E2: recinto grande, catalogo de 9 muebles.
+#   Pensada para mostrar el costo computacional del metodo exacto.
+#
+#   Recinto 500x400 cm tipo living-comedor.
+# =============================================================================
+
+param Wroom := 500;
+param Hroom := 400;
+
+# Puerta a un costado de la pared inferior
+param Px := 80;
+param Py := 0;
+
+set MUEBLES :=
+    sofa sillon1 sillon2 mesa_centro tv_mueble
+    librero comoda mesa_comedor silla_com1;
+
+set CATEGORIAS :=
+    sofa sillon mesa_centro tv_mueble
+    librero comoda mesa_comedor silla_com;
+
+param: ancho largo clear cat :=
+    sofa          220   90  40  sofa
+    sillon1        85   85  30  sillon
+    sillon2        85   85  30  sillon
+    mesa_centro   120   70  30  mesa_centro
+    tv_mueble     180   45  60  tv_mueble
+    librero       120   40  30  librero
+    comoda        100   50  30  comoda
+    mesa_comedor  140   90  60  mesa_comedor
+    silla_com1     45   45  30  silla_com
+;
+
+param: desea peso :=
+    sofa          1   1.0
+    sillon        2   0.5
+    mesa_centro   1   0.7
+    tv_mueble     1   0.8
+    librero       1   0.4
+    comoda        1   0.4
+    mesa_comedor  1   0.9
+    silla_com     4   0.6
+;

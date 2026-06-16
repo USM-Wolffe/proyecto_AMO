@@ -1,0 +1,18 @@
+# Artefactos de compilación (C)
+*.o
+*.a
+nsga2r
+heuristico/nsga2r
+# Salidas de ejecución
+*.out
+work/
+resultados/
+pool.txt
+hvs.txt
+ts.txt
+q.dat
+# Python
+__pycache__/
+*.pyc
+# Sistema
+.DS_Store

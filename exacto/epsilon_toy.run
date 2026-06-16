@@ -1,0 +1,94 @@
+# =============================================================================
+#   epsilon_toy.run  -  ejecutar despues de:
+#       reset; model interior.mod; data toy.dat;
+# =============================================================================
+
+option solver cbc;
+option solver_msg 0;
+option presolve_eps 1e-9;
+
+# Variables auxiliares como params (asignados con 'let' tras solve)
+param gc_min default 0;
+param gr_min default 0;
+param gf_min default 0;
+param gc_at_gr default 0;
+param gc_at_gf default 0;
+param gr_at_gc default 0;
+param gr_at_gf default 0;
+param gf_at_gc default 0;
+param gf_at_gr default 0;
+
+# Soltamos los 3 objetivos y las 3 cotas para empezar limpios
+objective obj_gc; drop obj_gc;
+objective obj_gr; drop obj_gr;
+objective obj_gf; drop obj_gf;
+drop cota_gc; drop cota_gr; drop cota_gf;
+
+print "==== Extremos individuales ====";
+
+restore obj_gc;
+solve;
+let gc_min := gc;
+let gc_at_gr := gr;
+let gc_at_gf := gf;
+print "min gc =", gc_min, "  (gr=", gc_at_gr, " gf=", gc_at_gf, ")";
+drop obj_gc;
+
+restore obj_gr;
+solve;
+let gr_min := gr;
+let gr_at_gc := gc;
+let gr_at_gf := gf;
+print "min gr =", gr_min, "  (gc=", gr_at_gc, " gf=", gr_at_gf, ")";
+drop obj_gr;
+
+restore obj_gf;
+solve;
+let gf_min := gf;
+let gf_at_gc := gc;
+let gf_at_gr := gr;
+print "min gf =", gf_min, "  (gc=", gf_at_gc, " gr=", gf_at_gr, ")";
+drop obj_gf;
+
+# Topes superiores aproximados
+param gr_max default 0.5;
+param gf_max default 0.5;
+let gr_max := max(gc_at_gr, gf_at_gr, 0.5);
+let gf_max := max(gc_at_gf, gr_at_gf, 0.5);
+
+# ---------------- Barrido epsilon-constraint --------------------------------
+
+param NSTEPS := 4;
+param paso_gr default 0;
+param paso_gf default 0;
+let paso_gr := (gr_max - gr_min) / NSTEPS;
+let paso_gf := (gf_max - gf_min) / NSTEPS;
+
+param out symbolic := "pareto_toy.csv";
+print "instancia,k_gr,k_gf,gc,gr,gf,status" > (out);
+
+restore obj_gc;
+restore cota_gr;
+restore cota_gf;
+
+print "==== Barrido ====";
+
+for {kr in 0..NSTEPS} {
+    for {kf in 0..NSTEPS} {
+        let eps_gr := gr_min + kr * paso_gr;
+        let eps_gf := gf_min + kf * paso_gf;
+        solve;
+        if solve_result = "solved" then {
+            printf "%s,%d,%d,%.6f,%.6f,%.6f,%s\n",
+                "toy", kr, kf, gc, gr, gf, solve_result >> (out);
+            print "  kr=", kr, " kf=", kf, " gc=", gc, " gr=", gr, " gf=", gf;
+        } else {
+            printf "%s,%d,%d,,,,%s\n",
+                "toy", kr, kf, solve_result >> (out);
+            print "  kr=", kr, " kf=", kf, " ->", solve_result;
+        }
+    }
+}
+
+close (out);
+print "==== Listo. Resultados en pareto_toy.csv ====";
